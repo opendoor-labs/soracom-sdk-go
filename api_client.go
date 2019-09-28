@@ -309,6 +309,30 @@ func (ac *APIClient) GetSubscriber(imsi string) (*Subscriber, error) {
 	return subscriber, nil
 }
 
+// SearchSubscribers Searches subscribers by specified attributes
+func (ac *APIClient) SearchSubscribers(attrName string, attrValue string) ([]Subscriber, *PaginationKeys, error) {
+	queryParams := url.Values{}
+	queryParams.Add(attrName, attrValue)
+
+	params := &apiParams{
+		method: "GET",
+		path:   "/v1/query/subscribers?" + queryParams.Encode(),
+	}
+
+	resp, err := ac.callAPI(params)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer resp.Body.Close()
+
+	subscribers, pgn, err := parseListSubscribersResponse(resp)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return subscribers, pgn, nil
+}
+
 // UpdateSubscriberSpeedClass updates speed class of a subscriber.
 func (ac *APIClient) UpdateSubscriberSpeedClass(imsi, speedClass string) (*Subscriber, error) {
 	params := &apiParams{
