@@ -806,6 +806,23 @@ func TestGetSubscriber(t *testing.T) {
 	}
 }
 
+func TestSearchSubscribers(t *testing.T) {
+	subs, _, err := apiClient.ListSubscribers(&ListSubscribersOptions{
+		Limit: 1,
+	})
+	if err != nil || len(subs) == 0 {
+		t.Fatalf("At least 1 subscriber is required")
+	}
+	iccid := subs[0].ICCID
+	searchResults, _, err := apiClient.SearchSubscribers("iccid", iccid)
+	if err != nil || len(searchResults) == 0 {
+		t.Fatalf("Error occurred on SearchSubscribers(): %v", err.Error())
+	}
+	if searchResults[0].ICCID != iccid {
+		t.Fatalf("Found a subscriber which is not specified")
+	}
+}
+
 func TestUpdateSubscriberSpeedClass(t *testing.T) {
 	subs, _, err := apiClient.ListSubscribers(&ListSubscribersOptions{
 		Limit: 1,
